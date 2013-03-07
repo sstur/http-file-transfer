@@ -130,10 +130,10 @@ function sendIndex($path) {
   if ($array == false) {
     sendNotFound();
   }
-  echo implode('\n', $array);
+  echo implode("\n", $array);
 }
 
-function listFiles($path, $array = array()) {
+function listFiles($path, &$array = array()) {
   $fullpath = mapPath($path);
   $items = scandir($fullpath);
   if ($items == false) {
