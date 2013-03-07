@@ -37,7 +37,7 @@ if ($method == 'get') {
   }
 }
 
-if ($method == 'post') {
+if ($method == 'put') {
   if (substr($path, -1) == '/') {
     $dirname = rtrim($path, '/');
     createDirectory($dirname);
@@ -46,8 +46,19 @@ if ($method == 'post') {
     $dirname = dirname($path);
     createDirectory($dirname);
     if (!empty($_FILES['upload'])) {
-      saveUpload($_FILES['upload'], $path);
+      saveUpload($_FILES['upload'], $path, $_POST);
     }
+    sendSuccess();
+  }
+}
+
+if ($method == 'post') {
+  if (substr($path, -1) == '/') {
+    $dirname = rtrim($path, '/');
+    updateAttributes($dirname, $_POST);
+    sendSuccess();
+  } else {
+    updateAttributes($path, $_POST);
     sendSuccess();
   }
 }
@@ -65,10 +76,15 @@ if ($method == 'delete') {
 
 
 
+function updateAttributes($path) {
+  $fullpath = mapPath($path);
+  //todo
+}
+
 function createDirectory($path) {
   $fullpath = mapPath($path);
   if (!is_dir($fullpath)) {
-    mkdir($fullpath, 0755, true);
+    mkdir($fullpath, 0777, true);
   }
 }
 
@@ -146,6 +162,7 @@ function listFiles($path, &$array = array()) {
       array_push($array, $itempath . '/');
       listFiles($itempath, $array);
     } else {
+      //array_push($array, $itempath . '|' . http_build_query(stat(mapPath($itempath))));
       array_push($array, $itempath);
     }
   }
