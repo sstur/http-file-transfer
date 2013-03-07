@@ -66,7 +66,10 @@ if ($method == 'delete') {
 
 
 function createDirectory($path) {
-  mkdir(mapPath($path), 0644, true);
+  $fullpath = mapPath($path);
+  if (!is_dir($fullpath)) {
+    mkdir($fullpath, 0755, true);
+  }
 }
 
 function removeDirectory($path) {
