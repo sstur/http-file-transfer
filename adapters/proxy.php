@@ -13,8 +13,9 @@ if (!isset($_SERVER['PHP_AUTH_USER'])) {
 }
 
 $headers = parseRequestHeaders();
-$method = $headers['x-method-override'];
-if (empty($method)) {
+if (!empty($headers['x-method-override'])) {
+  $method = $headers['x-method-override'];
+} else {
   $method = $_SERVER['REQUEST_METHOD'];
 }
 $method = strtolower($method);
@@ -122,12 +123,30 @@ function statFile($path) {
 
 
 function sendIndex($path) {
+  $array = listFiles($path);
+  if ($array == false) {
+    sendNotFound();
+  }
+  echo implode('\n', $array);
+}
+
+function listFiles($path, $array = array()) {
   $fullpath = mapPath($path);
   $items = scandir($fullpath);
   if ($items == false) {
-    sendNotFound();
+    return false;
   }
-  //todo
+  foreach ($items as $item) {
+    if ($item == '.' || $item == '..') continue;
+    $itempath = $path . '/' . $item;
+    if (is_dir(mapPath($itempath))) {
+      array_push($array, $itempath . '/');
+      listFiles($itempath, $array);
+    } else {
+      array_push($array, $itempath);
+    }
+  }
+  return $array;
 }
 
 function sendFile($path) {
@@ -168,6 +187,9 @@ function sendUnauthorized() {
 
 
 function mapPath($path) {
+  if (strlen($path) == 0) {
+    return BASEPATH;
+  }
   return BASEPATH . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $path);
 }
 
@@ -186,7 +208,7 @@ function normalize($path) {
     if ($name == '' || $name == '.' || $name == '..') {
       sendError('Invalid path: ' . $path);
     }
-    if (preg_match('/[^\x20-\x2E\x30-\x5B\x5D-\x7E\w]/', $name)) {
+    if (preg_match('/[^\x20-\x2E\x30-\x5B\x5D-\x7B\x7D-\x7E\w]/', $name)) {
       sendError('Invalid path: ' . $path);
     }
     $parts[$i] = $name;
