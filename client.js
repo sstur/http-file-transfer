@@ -1,7 +1,7 @@
 /*global require, exports, module, process*/
 (function() {
   "use strict";
-  var URL = 'http://hftp.local/proxy.php';
+  var URL = 'http://hft.local/hft.php';
   var USER = 'user';
   var PASS = 'password';
 

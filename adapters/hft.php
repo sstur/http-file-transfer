@@ -3,6 +3,12 @@ $credentials = 'user|password';
 
 DEFINE('BASEPATH', dirname(__FILE__));
 
+if (empty($_GET['path'])) {
+  header('Content-Type: text/html; charset=utf8');
+  echo '<script src="//dl.dropbox.com/u/341900/hft/v1/init.js?v1.0"></script>';
+  exit;
+}
+
 if (!isset($_SERVER['PHP_AUTH_USER'])) {
   sendUnauthorized();
 } else {
@@ -20,13 +26,7 @@ if (!empty($headers['x-method-override'])) {
 }
 $method = strtolower($method);
 
-if (!empty($_GET['path'])) {
-  //rewrite uses querystring
-  $path = $_GET['path'];
-} else {
-  $path = $_SERVER['REQUEST_URI'];
-}
-$path = normalize($path);
+$path = normalize($_GET['path']);
 
 if ($method == 'get') {
   if (substr($path, -1) == '/') {
